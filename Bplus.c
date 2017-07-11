@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
+#include <limits.h>
  
 #define m 5
 #define min (m/2 + m%2)
@@ -219,14 +220,33 @@ void search(node root,int val){
 		}
 	}
 	printf("Value %d is not found",val);
-}			
+}	
+
+int isBplus_util(node root,int MIN,int MAX){
+	int res=1,i=0,ct;
+	if(root ==  NULL)
+		return 1;
+	ct = root->ct;
+	if(root->key[0] < MIN || root->key[ct-1] >= MAX)
+		return 0;
+	res = isBplus_util(root->ch[0],MIN,root->key[i]);
+	for(i = 1;i<ct;i++)
+		res = res && isBplus_util(root->ch[i],root->key[i-1],root->key[i]);
+
+	if(root->leaf != 1)
+		res = res && isBplus_util(root->ch[ct],root->key[ct-1],MAX);
+	return res;
+}		
 				
+int isBplus(node root){
+	return isBplus_util(root,INT_MIN,INT_MAX);
+}
 
 void main(){
 	node root = NULL;
 	int i,ch,item,num;
 	while(1){
-		printf("\n0.Display\n1.Insert\n2.search\n3.exit\nEnter choice:");
+		printf("\n0.Display\n1.Insert\n2.search\n3.Verify\n4.exit\nEnter choice:");
 		scanf("%d",&ch);
 		switch(ch){
 			case 0:
@@ -236,9 +256,9 @@ void main(){
 				printf("Enter no of items\n");
 				scanf("%d",&num);
 				for(i=0;i<num;i++){
-					printf("Enter data\n");
-					scanf("%d",&item);
-					root = insert(root,item);
+					//printf("Enter data\n");
+					//scanf("%d",&item);
+					root = insert(root,i);
 				}
 				break;
 			}
@@ -248,7 +268,14 @@ void main(){
 				search(root,item);
 				break;
 			}
-			case 3:
+			case 3:{
+				if(isBplus(root) == 1)
+					printf("Tree is correct");
+				else
+					printf("Tree is not correct");
+				break;
+			}
+			case 4:
 			exit(0);
 
 
